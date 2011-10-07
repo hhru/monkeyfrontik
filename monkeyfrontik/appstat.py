@@ -67,6 +67,8 @@ def patch_handler():
 
     old_finish = frontik.handler.PageHandler.finish
     def finish(self, chunk=None):
+        if self.debug.debug_mode:
+            self.xml.apply_xsl = True
         key = None
         if self.force_stat:
             key = str(self.request_id)
@@ -80,7 +82,7 @@ def patch_handler():
     old_posts={}
     old_finish_page_cb = frontik.handler.PageHandler._finish_page_cb
     def _finish_page_cb(self):
-        if self.config not in old_posts:
+        if self.config not in old_posts and hasattr(self.config, 'postprocessor'):
             old_posts[self.config] = self.config.postprocessor.__call__
             @wraps(self.config.postprocessor.__call__) #, assigned=[])
             def post_wrap(handler, chunk, cb):
