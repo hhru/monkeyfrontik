@@ -1,3 +1,9 @@
+monkeyfrontik (0.2.2) unstable; urgency=low
+
+  * no postprocessor in cofig fix
+
+ -- Pavel Trukhanov <p.trukhanov@hh.ru>  Wed, 11 Jan 2012 19:43:35 +0400
+
 monkeyfrontik (0.2.1) unstable; urgency=low
 
   * pyver fix

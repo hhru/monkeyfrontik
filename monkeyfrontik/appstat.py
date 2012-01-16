@@ -81,12 +81,17 @@ def patch_handler():
     old_finish_page_cb = frontik.handler.PageHandler._finish_page_cb
     def _finish_page_cb(self):
         if self.config not in old_posts:
-            old_posts[self.config] = self.config.postprocessor.__call__
-            @wraps(self.config.postprocessor.__call__) #, assigned=[])
-            def post_wrap(handler, chunk, cb):
-                recording.pre_call_hook('POST', str(self.config.postprocessor), chunk, None)
-                old_posts[self.config](handler, chunk, cb)
-            self.config.postprocessor.__call__ = post_wrap
+            if hasattr(self.config, 'postprocessor'):
+                def postprocessor_wrapped(handler, chunk, cb):
+                    recording.pre_call_hook('POST', str(self.config.postprocessor), chunk, None)
+                    old_posts[self.config](handler, chunk, cb)
+
+                if hasattr(self.config.postprocessor, '__call__'):
+                    old_posts[self.config] = self.config.postprocessor.__call__
+                    self.config.postprocessor.__call__ = postprocessor_wrapped
+                else:
+                    old_posts[self.config] = self.config.postprocessor
+                    self.config.postprocessor = postprocessor_wrapped
         old_finish_page_cb(self)
     frontik.handler.PageHandler._finish_page_cb = _finish_page_cb
 
